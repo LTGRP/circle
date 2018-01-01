@@ -7,13 +7,10 @@ extern "C" {
 
 struct mutex
 {
-	volatile int lock;
+	void *mutexobj;		// opaque pointer
 };
 
-static inline void mutex_init (struct mutex *lock)
-{
-	lock->lock = 0;
-}
+void mutex_init (struct mutex *lock);
 
 void mutex_lock (struct mutex *lock);
 void mutex_unlock (struct mutex *lock);

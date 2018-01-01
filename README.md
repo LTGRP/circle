@@ -149,6 +149,12 @@ Base library
 * CClassAllocator: Support class for the class-specific allocation of objects
 * CSoundBaseDevice: Base class of sound devices, converts several sound formats
 
+Scheduler library
+
+* CMutex: Mutex synchronization object
+* CReadWriteLock: Read-write-lock synchronization object
+* CSemaphore: Semaphore synchronization object
+
 The available Circle classes are listed in the file *doc/classes.txt*. If you have doxygen installed on your computer you can build a class documentation in *doc/html/* using:
 
 `./makedoc`

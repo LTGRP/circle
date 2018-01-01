@@ -12,14 +12,11 @@ extern "C" {
 
 typedef struct
 {
-	volatile u32 lock;
+	void *lockobj;		// opaque pointer
 }
 rwlock_t;
 
-static inline void rwlock_init (rwlock_t *lock)
-{
-	lock->lock = 0;
-}
+void rwlock_init (rwlock_t *lock);
 
 void read_lock_bh (rwlock_t *lock);
 void read_unlock_bh (rwlock_t *lock);

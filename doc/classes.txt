@@ -104,6 +104,9 @@ FAT FS library
 
 Scheduler library
 
+* CMutex: Mutex synchronization object.
+* CReadWriteLock: Read-write-lock synchronization object.
+* CSemaphore: Semaphore synchronization object.
 * CTask: Overload this class, define the Run() method to implement your own task and call new on it to start it.
 * CScheduler: Cooperative non-preemtive scheduler which controls which task runs at a time.
 * CSynchronizationEvent: Provides a method to synchronize the execution of a task with an event.

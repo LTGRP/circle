@@ -13,7 +13,8 @@ class CLinuxDevice
 public:
 	CLinuxDevice (CMemorySystem	*pMemory,
 		      CInterruptSystem	*pInterrupt,
-		      TLinuxDeviceProbe	*pProbeFunc);
+		      TLinuxDeviceProbe	*pProbeFunc,
+		      unsigned		 nKThreadCore = 0);
 	~CLinuxDevice (void);
 
 	boolean Initialize (void);
@@ -26,6 +27,7 @@ private:
 	struct platform_device m_PlatformDevice;
 
 	TLinuxDeviceProbe *m_pProbeFunc;
+	unsigned m_nKThreadCore;
 };
 
 #endif

@@ -1,52 +1,35 @@
 #include <linux/rwlock.h>
-#include <linux/bug.h>
-#include <circle/sched/scheduler.h>
-#include <circle/multicore.h>
+#include <circle/sched/readwritelock.h>
 
-#define WRITE_LOCK	(1U << 31)
+void rwlock_init (rwlock_t *lock)
+{
+	lock->lockobj = new CReadWriteLock;
+}
 
 void read_lock_bh (rwlock_t *lock)
 {
-#ifdef ARM_ALLOW_MULTI_CORE
-	BUG_ON (CMultiCoreSupport::ThisCore () != 0);
-#endif
+	CReadWriteLock *pLock = reinterpret_cast<CReadWriteLock *> (lock->lockobj);
 
-	lock->lock++;
-
-	while (lock->lock >= WRITE_LOCK)
-	{
-		CScheduler::Get ()->Yield ();
-	}
+	pLock->ReadLock ();
 }
 
 void read_unlock_bh (rwlock_t *lock)
 {
-#ifdef ARM_ALLOW_MULTI_CORE
-	BUG_ON (CMultiCoreSupport::ThisCore () != 0);
-#endif
+	CReadWriteLock *pLock = reinterpret_cast<CReadWriteLock *> (lock->lockobj);
 
-	lock->lock--;
+	pLock->ReadUnlock ();
 }
 
 void write_lock_bh (rwlock_t *lock)
 {
-#ifdef ARM_ALLOW_MULTI_CORE
-	BUG_ON (CMultiCoreSupport::ThisCore () != 0);
-#endif
+	CReadWriteLock *pLock = reinterpret_cast<CReadWriteLock *> (lock->lockobj);
 
-	lock->lock |= WRITE_LOCK;
-
-	while ((lock->lock & ~WRITE_LOCK) != 0)
-	{
-		CScheduler::Get ()->Yield ();
-	}
+	pLock->WriteLock ();
 }
 
 void write_unlock_bh (rwlock_t *lock)
 {
-#ifdef ARM_ALLOW_MULTI_CORE
-	BUG_ON (CMultiCoreSupport::ThisCore () != 0);
-#endif
+	CReadWriteLock *pLock = reinterpret_cast<CReadWriteLock *> (lock->lockobj);
 
-	lock->lock &= ~WRITE_LOCK;
+	pLock->WriteUnlock ();
 }

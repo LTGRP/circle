@@ -8,8 +8,8 @@
 
 extern "C" int vchiq_probe (struct platform_device *pdev);
 
-CVCHIQDevice::CVCHIQDevice (CMemorySystem *pMemory, CInterruptSystem *pInterrupt)
-:	CLinuxDevice (pMemory, pInterrupt, vchiq_probe)
+CVCHIQDevice::CVCHIQDevice (CMemorySystem *pMemory, CInterruptSystem *pInterrupt, unsigned nKThreadCore)
+:	CLinuxDevice (pMemory, pInterrupt, vchiq_probe, nKThreadCore)
 {
 	AddResource (ARM_VCHIQ_BASE, ARM_VCHIQ_END, IORESOURCE_MEM);
 	AddResource (ARM_IRQ_ARM_DOORBELL_0, ARM_IRQ_ARM_DOORBELL_0, IORESOURCE_IRQ);

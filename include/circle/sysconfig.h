@@ -147,7 +147,9 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-// MAX_TASKS is the maximum number of tasks in the system.
+// MAX_TASKS is the maximum number of tasks in the system. With
+// ARM_ALLOW_MULTI_CORE defined this is the number of tasks which can
+// run on one CPU core.
 
 #define MAX_TASKS		20
 

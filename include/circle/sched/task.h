@@ -2,7 +2,7 @@
 // task.h
 //
 // Circle - A C++ bare metal environment for Raspberry Pi
-// Copyright (C) 2015-2016  R. Stange <rsta2@o2online.de>
+// Copyright (C) 2015-2017  R. Stange <rsta2@o2online.de>
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -38,7 +38,8 @@ class CScheduler;
 class CTask
 {
 public:
-	CTask (unsigned nStackSize = TASK_STACK_SIZE);		// nStackSize = 0 for main task
+	CTask (unsigned nStackSize = TASK_STACK_SIZE,	// 0 for main task
+	       unsigned nCore = 0);			// the core, this task will run on
 	virtual ~CTask (void);
 
 	virtual void Run (void);

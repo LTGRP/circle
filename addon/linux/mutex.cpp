@@ -1,27 +1,21 @@
 #include <linux/mutex.h>
-#include <linux/bug.h>
-#include <circle/sched/scheduler.h>
-#include <circle/multicore.h>
+#include <circle/sched/mutex.h>
+
+void mutex_init (struct mutex *lock)
+{
+	lock->mutexobj = new CMutex;
+}
 
 void mutex_lock (struct mutex *lock)
 {
-#ifdef ARM_ALLOW_MULTI_CORE
-	BUG_ON (CMultiCoreSupport::ThisCore () != 0);
-#endif
+	CMutex *pMutex = reinterpret_cast<CMutex *> (lock->mutexobj);
 
-	while (lock->lock != 0)
-	{
-		CScheduler::Get ()->Yield ();
-	}
-
-	lock->lock = 1;
+	pMutex->Lock ();
 }
 
 void mutex_unlock (struct mutex *lock)
 {
-#ifdef ARM_ALLOW_MULTI_CORE
-	BUG_ON (CMultiCoreSupport::ThisCore () != 0);
-#endif
+	CMutex *pMutex = reinterpret_cast<CMutex *> (lock->mutexobj);
 
-	lock->lock = 0;
+	pMutex->Unlock ();
 }

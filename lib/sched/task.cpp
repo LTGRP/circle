@@ -22,7 +22,7 @@
 #include <circle/util.h>
 #include <assert.h>
 
-CTask::CTask (unsigned nStackSize)
+CTask::CTask (unsigned nStackSize, unsigned nCore)
 :	m_State (TaskStateReady),
 	m_nStackSize (nStackSize),
 	m_pStack (0)
@@ -37,7 +37,7 @@ CTask::CTask (unsigned nStackSize)
 		InitializeRegs ();
 	}
 
-	CScheduler::Get ()->AddTask (this);
+	CScheduler::Get ()->AddTask (this, nCore);
 }
 
 CTask::~CTask (void)

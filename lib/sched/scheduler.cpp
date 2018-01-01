@@ -2,7 +2,7 @@
 // scheduler.cpp
 //
 // Circle - A C++ bare metal environment for Raspberry Pi
-// Copyright (C) 2015-2016  R. Stange <rsta2@o2online.de>
+// Copyright (C) 2015-2017  R. Stange <rsta2@o2online.de>
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 #include <circle/sched/scheduler.h>
+#include <circle/multicore.h>
 #include <circle/timer.h>
 #include <circle/logger.h>
 #include <assert.h>
@@ -27,46 +28,69 @@ static const char FromScheduler[] = "sched";
 CScheduler *CScheduler::s_pThis = 0;
 
 CScheduler::CScheduler (void)
-:	m_nTasks (0),
-	m_pCurrent (0),
-	m_nCurrent (0)
+:	m_SpinLock (TASK_LEVEL)
 {
 	assert (s_pThis == 0);
 	s_pThis = this;
 
-	m_pCurrent = new CTask (0);		// main task currently running
-	assert (m_pCurrent != 0);
+	for (unsigned nCore = 0; nCore < SCHEDULER_CORES; nCore++)
+	{
+		m_nTasks[nCore] = 0;
+		m_nCurrent[nCore] = 0;
+
+		m_pCurrent[nCore] = new CTask (0, nCore);	// main task currently running
+		assert (m_pCurrent[nCore] != 0);
+	}
 }
 
 CScheduler::~CScheduler (void)
 {
-	assert (m_nTasks == 1);
-	assert (m_pTask[0] == m_pCurrent);
-	RemoveTask (m_pCurrent);
-	delete m_pCurrent;
-	m_pCurrent = 0;
+	for (unsigned nCore = 0; nCore < SCHEDULER_CORES; nCore++)
+	{
+		assert (m_nTasks[nCore] == 1);
+		assert (m_pTask[nCore][0] == m_pCurrent[nCore]);
+		RemoveTask (m_pCurrent[nCore], nCore);
+		delete m_pCurrent[nCore];
+		m_pCurrent[nCore] = 0;
+	}
 
 	s_pThis = 0;
 }
 
 void CScheduler::Yield (void)
 {
-	while ((m_nCurrent = GetNextTask ()) == MAX_TASKS)	// no task is ready
+#ifdef ARM_ALLOW_MULTI_CORE
+	unsigned nCore = CMultiCoreSupport::ThisCore ();
+#else
+	unsigned nCore = 0;
+#endif
+
+	m_SpinLock.Acquire ();
+
+	while ((m_nCurrent[nCore] = GetNextTask (nCore)) == MAX_TASKS)	// no task is ready
 	{
-		assert (m_nTasks > 0);
+		m_SpinLock.Release ();
+
+		assert (m_nTasks[nCore] > 0);
+
+		m_SpinLock.Acquire ();
 	}
 
-	assert (m_nCurrent < MAX_TASKS);
-	CTask *pNext = m_pTask[m_nCurrent];
+	assert (m_nCurrent[nCore] < MAX_TASKS);
+	CTask *pNext = m_pTask[nCore][m_nCurrent[nCore]];
 	assert (pNext != 0);
-	if (m_pCurrent == pNext)
+	if (m_pCurrent[nCore] == pNext)
 	{
+		m_SpinLock.Release ();
+
 		return;
 	}
 	
-	TTaskRegisters *pOldRegs = m_pCurrent->GetRegs ();
-	m_pCurrent = pNext;
-	TTaskRegisters *pNewRegs = m_pCurrent->GetRegs ();
+	TTaskRegisters *pOldRegs = m_pCurrent[nCore]->GetRegs ();
+	m_pCurrent[nCore] = pNext;
+	TTaskRegisters *pNewRegs = m_pCurrent[nCore]->GetRegs ();
+
+	m_SpinLock.Release ();
 
 	assert (pOldRegs != 0);
 	assert (pNewRegs != 0);
@@ -99,53 +123,67 @@ void CScheduler::usSleep (unsigned nMicroSeconds)
 {
 	if (nMicroSeconds > 0)
 	{
+#ifdef ARM_ALLOW_MULTI_CORE
+		unsigned nCore = CMultiCoreSupport::ThisCore ();
+#else
+		unsigned nCore = 0;
+#endif
+
 		unsigned nTicks = nMicroSeconds * (CLOCKHZ / 1000000);
 
 		unsigned nStartTicks = CTimer::Get ()->GetClockTicks ();
 
-		assert (m_pCurrent != 0);
-		assert (m_pCurrent->GetState () == TaskStateReady);
-		m_pCurrent->SetWakeTicks (nStartTicks + nTicks);
-		m_pCurrent->SetState (TaskStateSleeping);
+		assert (m_pCurrent[nCore] != 0);
+		assert (m_pCurrent[nCore]->GetState () == TaskStateReady);
+		m_pCurrent[nCore]->SetWakeTicks (nStartTicks + nTicks);
+		m_pCurrent[nCore]->SetState (TaskStateSleeping);
 
 		Yield ();
 	}
 }
 
-void CScheduler::AddTask (CTask *pTask)
+void CScheduler::AddTask (CTask *pTask, unsigned nCore)
 {
 	assert (pTask != 0);
+	assert (nCore < SCHEDULER_CORES);
+
+	m_SpinLock.Acquire ();
 
 	unsigned i;
-	for (i = 0; i < m_nTasks; i++)
+	for (i = 0; i < m_nTasks[nCore]; i++)
 	{
-		if (m_pTask[i] == 0)
+		if (m_pTask[nCore][i] == 0)
 		{
-			m_pTask[i] = pTask;
+			m_pTask[nCore][i] = pTask;
+
+			m_SpinLock.Release ();
 
 			return;
 		}
 	}
 
-	if (m_nTasks >= MAX_TASKS)
+	if (m_nTasks[nCore] >= MAX_TASKS)
 	{
-		CLogger::Get ()->Write (FromScheduler, LogPanic, "System limit of tasks exceeded");
+		CLogger::Get ()->Write (FromScheduler, LogPanic,
+					"System limit of tasks exceeded (core %u)", nCore);
 	}
 
-	m_pTask[m_nTasks++] = pTask;
+	m_pTask[nCore][m_nTasks[nCore]++] = pTask;
+
+	m_SpinLock.Release ();
 }
 
-void CScheduler::RemoveTask (CTask *pTask)
+void CScheduler::RemoveTask (CTask *pTask, unsigned nCore)	// called with spin lock acquired
 {
-	for (unsigned i = 0; i < m_nTasks; i++)
+	for (unsigned i = 0; i < m_nTasks[nCore]; i++)
 	{
-		if (m_pTask[i] == pTask)
+		if (m_pTask[nCore][i] == pTask)
 		{
-			m_pTask[i] = 0;
+			m_pTask[nCore][i] = 0;
 
-			if (i == m_nTasks-1)
+			if (i == m_nTasks[nCore]-1)
 			{
-				m_nTasks--;
+				m_nTasks[nCore]--;
 			}
 
 			return;
@@ -157,12 +195,18 @@ void CScheduler::RemoveTask (CTask *pTask)
 
 void CScheduler::BlockTask (CTask **ppTask)
 {
-	assert (ppTask != 0);
-	*ppTask = m_pCurrent;
+#ifdef ARM_ALLOW_MULTI_CORE
+	unsigned nCore = CMultiCoreSupport::ThisCore ();
+#else
+	unsigned nCore = 0;
+#endif
 
-	assert (m_pCurrent != 0);
-	assert (m_pCurrent->GetState () == TaskStateReady);
-	m_pCurrent->SetState (TaskStateBlocked);
+	assert (ppTask != 0);
+	*ppTask = m_pCurrent[nCore];
+
+	assert (m_pCurrent[nCore] != 0);
+	assert (m_pCurrent[nCore]->GetState () == TaskStateReady);
+	m_pCurrent[nCore]->SetState (TaskStateBlocked);
 
 	Yield ();
 }
@@ -188,20 +232,60 @@ void CScheduler::WakeTask (CTask **ppTask)
 	pTask->SetState (TaskStateReady);
 }
 
-unsigned CScheduler::GetNextTask (void)
+void CScheduler::BlockTaskToList (CTask *pTaskList[])
 {
-	unsigned nTask = m_nCurrent < MAX_TASKS ? m_nCurrent : 0;
+	assert (pTaskList != 0);
+
+	unsigned i;
+	for (i = 0; i < SCHEDULER_TASKLIST_SIZE; i++)
+	{
+		if (pTaskList[i] == 0)
+		{
+			break;
+		}
+	}
+	assert (i < SCHEDULER_TASKLIST_SIZE);
+
+#ifdef ARM_ALLOW_MULTI_CORE
+	unsigned nCore = CMultiCoreSupport::ThisCore ();
+#else
+	unsigned nCore = 0;
+#endif
+
+	pTaskList[i] = m_pCurrent[nCore];
+
+	assert (m_pCurrent[nCore] != 0);
+	assert (m_pCurrent[nCore]->GetState () == TaskStateReady);
+	m_pCurrent[nCore]->SetState (TaskStateBlocked);
+}
+
+void CScheduler::WakeTasksFromList (CTask *pTaskList[])
+{
+	assert (pTaskList != 0);
+
+	for (unsigned i = 0; i < SCHEDULER_TASKLIST_SIZE; i++)
+	{
+		if (pTaskList[i] != 0)
+		{
+			WakeTask (&pTaskList[i]);
+		}
+	}
+}
+
+unsigned CScheduler::GetNextTask (unsigned nCore)	// called with spin lock acquired
+{
+	unsigned nTask = m_nCurrent[nCore] < MAX_TASKS ? m_nCurrent[nCore] : 0;
 
 	unsigned nTicks = CTimer::Get ()->GetClockTicks ();
 
-	for (unsigned i = 1; i <= m_nTasks; i++)
+	for (unsigned i = 1; i <= m_nTasks[nCore]; i++)
 	{
-		if (++nTask >= m_nTasks)
+		if (++nTask >= m_nTasks[nCore])
 		{
 			nTask = 0;
 		}
 
-		CTask *pTask = m_pTask[nTask];
+		CTask *pTask = m_pTask[nCore][nTask];
 		if (pTask == 0)
 		{
 			continue;
@@ -224,7 +308,7 @@ unsigned CScheduler::GetNextTask (void)
 			return nTask;
 
 		case TaskStateTerminated:
-			RemoveTask (pTask);
+			RemoveTask (pTask, nCore);
 			delete pTask;
 			return MAX_TASKS;
 

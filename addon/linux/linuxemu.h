@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-int linuxemu_init (void);
+int linuxemu_init (unsigned kthread_core);
 
 #ifdef __cplusplus
 }

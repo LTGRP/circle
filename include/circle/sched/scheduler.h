@@ -22,7 +22,14 @@
 
 #include <circle/sched/task.h>
 #include <circle/sysconfig.h>
+#include <circle/spinlock.h>
 #include <circle/types.h>
+
+#ifdef ARM_ALLOW_MULTI_CORE
+	#define SCHEDULER_CORES		CORES
+#else
+	#define SCHEDULER_CORES		1
+#endif
 
 class CScheduler				// simple cooperative (non-preemtive) scheduler
 {
@@ -44,22 +51,31 @@ public:
 	}
 
 private:
-	void AddTask (CTask *pTask);
+	void AddTask (CTask *pTask, unsigned nCore);
 	friend class CTask;
 
 	void BlockTask (CTask **ppTask);
 	void WakeTask (CTask **ppTask);		// can be called from interrupt context
 	friend class CSynchronizationEvent;
 
-	void RemoveTask (CTask *pTask);
-	unsigned GetNextTask (void);		// returns index into m_pTask or MAX_TASKS if no task was found
+#define SCHEDULER_TASKLIST_SIZE		5
+	void BlockTaskToList (CTask *pTaskList[]);
+	void WakeTasksFromList (CTask *pTaskList[]);
+	friend class CMutex;
+	friend class CSemaphore;
+	friend class CReadWriteLock;
+
+	void RemoveTask (CTask *pTask, unsigned nCore);
+	unsigned GetNextTask (unsigned nCore);	// returns index into m_pTask or MAX_TASKS if no task was found
 
 private:
-	CTask *m_pTask[MAX_TASKS];
-	unsigned m_nTasks;
+	CTask *m_pTask[SCHEDULER_CORES][MAX_TASKS];
+	unsigned m_nTasks[SCHEDULER_CORES];
 
-	CTask *m_pCurrent;
-	unsigned m_nCurrent;			// index into m_pTask
+	CTask *m_pCurrent[SCHEDULER_CORES];
+	unsigned m_nCurrent[SCHEDULER_CORES];	// index into m_pTask
+
+	CSpinLock m_SpinLock;
 
 	static CScheduler *s_pThis;
 };

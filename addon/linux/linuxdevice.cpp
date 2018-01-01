@@ -5,8 +5,10 @@
 
 CLinuxDevice::CLinuxDevice (CMemorySystem     *pMemory,
 			    CInterruptSystem  *pInterrupt,
-			    TLinuxDeviceProbe *pProbeFunc)
-:	m_pProbeFunc (pProbeFunc)
+			    TLinuxDeviceProbe *pProbeFunc,
+			    unsigned	       nKThreadCore)
+:	m_pProbeFunc (pProbeFunc),
+	m_nKThreadCore (nKThreadCore)
 {
 	memset (&m_PlatformDevice, 0, sizeof m_PlatformDevice);
 
@@ -23,7 +25,7 @@ CLinuxDevice::~CLinuxDevice (void)
 
 boolean CLinuxDevice::Initialize (void)
 {
-	if (linuxemu_init () != 0)
+	if (linuxemu_init (m_nKThreadCore) != 0)
 	{
 		return FALSE;
 	}

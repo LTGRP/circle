@@ -9,15 +9,10 @@ extern "C" {
 
 struct semaphore
 {
-	volatile int count;
+	void *semaobj;		// opaque pointer
 };
 
-#define DEFINE_SEMAPHORE(name)	struct semaphore name = {1}
-
-static inline void sema_init (struct semaphore *sem, int val)
-{
-	sem->count = val;
-}
+void sema_init (struct semaphore *sem, int val);
 
 void down (struct semaphore *sem);
 void up (struct semaphore *sem);

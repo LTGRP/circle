@@ -1,11 +1,14 @@
 #include <linux/kthread.h>
 #include <circle/sched/task.h>
 
+static unsigned kthread_core = 0;
+
 class CKThread : public CTask
 {
 public:
 	CKThread (int (*threadfn) (void *data), void *data)
-	:	m_threadfn (threadfn),
+	:	CTask (TASK_STACK_SIZE, kthread_core),
+		m_threadfn (threadfn),
 		m_data (data)
 	{
 	}
@@ -50,4 +53,11 @@ int wake_up_process (struct task_struct *task)
 
 void flush_signals (struct task_struct *task)
 {
+}
+
+int linuxemu_init_kthread (unsigned core)
+{
+	kthread_core = core;
+
+	return 0;
 }

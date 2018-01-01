@@ -11,7 +11,8 @@
 class CVCHIQDevice : public CLinuxDevice
 {
 public:
-	CVCHIQDevice (CMemorySystem *pMemory, CInterruptSystem *pInterrupt);
+	CVCHIQDevice (CMemorySystem *pMemory, CInterruptSystem *pInterrupt,
+		      unsigned nKThreadCore = 0);
 };
 
 #endif
