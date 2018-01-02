@@ -2,7 +2,7 @@
 // synchronizationevent.cpp
 //
 // Circle - A C++ bare metal environment for Raspberry Pi
-// Copyright (C) 2015  R. Stange <rsta2@o2online.de>
+// Copyright (C) 2015-2018  R. Stange <rsta2@o2online.de>
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 //
 #include <circle/sched/synchronizationevent.h>
 #include <circle/sched/scheduler.h>
+#include <circle/synchronize.h>
 #include <assert.h>
 
 CSynchronizationEvent::CSynchronizationEvent (boolean bState)
@@ -40,6 +41,8 @@ boolean CSynchronizationEvent::GetState (void)
 void CSynchronizationEvent::Clear (void)
 {
 	m_bState = FALSE;
+
+	DataSyncBarrier ();
 }
 
 void CSynchronizationEvent::Set (void)
@@ -47,6 +50,8 @@ void CSynchronizationEvent::Set (void)
 	if (!m_bState)
 	{
 		m_bState = TRUE;
+
+		DataSyncBarrier ();
 
 		if (m_pWaitTask != 0)
 		{
