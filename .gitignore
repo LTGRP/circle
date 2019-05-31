@@ -73,11 +73,9 @@ $RECYCLE.BIN/
 *.app
 *.i*86
 *.x86_64
-*.hex
 
 # Circle
 # ----------------------------------------------
-*.img
 *.lst
 *.map
 Config.mk

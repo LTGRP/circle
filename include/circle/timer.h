@@ -26,7 +26,7 @@
 #include <circle/sysconfig.h>
 #include <circle/spinlock.h>
 
-#define HZ		100			// ticks per second
+#define HZ		1000			// ticks per second
 
 #define MSEC2HZ(msec)	((msec) * HZ / 1000)
 
@@ -51,7 +51,7 @@ public:
 	/// \param bLocal	Is time given according to our time zone? (UTC otherwise)
 	/// \return Operation successful? May fail for very small values if bLocal == FALSE
 	boolean SetTime (unsigned nTime, boolean bLocal = TRUE);
-
+    void SimplensDelay (unsigned nNanoseconds);
 	/// \return Current clock ticks of an 1 MHz counter, may wrap
 	static unsigned GetClockTicks (void);
 #define CLOCKHZ	1000000

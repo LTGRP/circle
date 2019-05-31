@@ -32,8 +32,8 @@ CCPUThrottle *CCPUThrottle::s_pThis = 0;
 
 CCPUThrottle::CCPUThrottle (TCPUSpeed InitialSpeed)
 :	m_bDynamic (FALSE),
-	m_nMinClockRate (600),
-	m_nMaxClockRate (600),
+	m_nMinClockRate (1200),
+	m_nMaxClockRate (1200),
 	m_nMaxTemperature (85000),
 	m_nEnforcedTemperature (60000),
 	m_SpeedSet (CPUSpeedUnknown),

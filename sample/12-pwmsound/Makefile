@@ -2,15 +2,14 @@
 # Makefile
 #
 
-CIRCLEHOME = ../..
 
 OBJS	= main.o kernel.o
 
-LIBS	= $(CIRCLEHOME)/lib/libcircle.a
+LIBS	= $(CIRCLE_PATH)/lib/libcircle.a
 
 EXTRACLEAN = sound.h
 
-include ../Rules.mk
+include $(CIRCLE_PATH)/Rules.mk
 
 kernel.o: sound.h
 

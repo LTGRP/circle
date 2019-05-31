@@ -108,17 +108,17 @@ TShutdownMode CKernel::Run (void)
 			CString FileName;
 			FileName.Format ("%-14s", Direntry.chTitle);
 
-			m_Screen.Write ((const char *) FileName, FileName.GetLength ());
+			m_Serial.Write ((const char *) FileName, FileName.GetLength ());
 
 			if (i % 5 == 4)
 			{
-				m_Screen.Write ("\n", 1);
+				m_Serial.Write ("\n", 1);
 			}
 		}
 
 		nEntry = m_FileSystem.RootFindNext (&Direntry, &CurrentEntry);
 	}
-	m_Screen.Write ("\n", 1);
+	m_Serial.Write ("\n", 1);
 
 	// Create file and write to it
 	unsigned hFile = m_FileSystem.FileCreate (FILENAME);
@@ -161,7 +161,7 @@ TShutdownMode CKernel::Run (void)
 			break;
 		}
 
-		m_Screen.Write (Buffer, nResult);
+		m_Serial.Write (Buffer, nResult);
 	}
 	
 	if (!m_FileSystem.FileClose (hFile))

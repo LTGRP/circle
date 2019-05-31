@@ -141,10 +141,10 @@ void CGPIOPin::Write (unsigned nValue)
 
 unsigned CGPIOPin::Read (void) const
 {
-	assert (   m_Mode == GPIOModeInput
-		|| m_Mode == GPIOModeInputPullUp
-		|| m_Mode == GPIOModeInputPullDown);
-	
+	//assert (   m_Mode == GPIOModeInput
+	//	|| m_Mode == GPIOModeInputPullUp
+//		|| m_Mode == GPIOModeInputPullDown);
+//	
 	PeripheralEntry ();
 
 	unsigned nResult = read32 (ARM_GPIO_GPLEV0 + m_nRegOffset) & m_nRegMask ? HIGH : LOW;

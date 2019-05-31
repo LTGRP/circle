@@ -446,6 +446,24 @@ void CTimer::SimpleusDelay (unsigned nMicroSeconds)
 	}
 }
 
+void CTimer::SimplensDelay (unsigned nNanoseconds)
+{
+	if (nNanoseconds > 0)
+	{
+		unsigned nTicks = nNanoseconds * (CLOCKHZ / 1000) + 1;
+
+		PeripheralEntry ();
+
+		unsigned nStartTicks = read32 (ARM_SYSTIMER_CLO);
+		while (read32 (ARM_SYSTIMER_CLO) - nStartTicks < nTicks)
+		{
+			// do nothing
+		}
+
+		PeripheralExit ();
+	}
+}
+
 int CTimer::IsLeapYear (unsigned nYear)
 {
 	if (nYear % 100 == 0)

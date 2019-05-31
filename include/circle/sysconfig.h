@@ -88,7 +88,7 @@
 // single core applications, because this may slow down the system
 // because multiple cores may compete for bus time without use.
 
-//#define ARM_ALLOW_MULTI_CORE
+#define ARM_ALLOW_MULTI_CORE
 
 // USE_QEMU_USB_FIX fixes an issue when using Circle images inside
 // QEMU. If you encounter Circle freezing when using USB in QEMU

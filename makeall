@@ -41,9 +41,9 @@ cd ..
 
 cd ..
 
-if [[ $makesample == true ]]
-then
-	cd sample
-	./makelatest $1 $2 || exit
-	cd ..
-fi
+#if [[ $makesample == true ]]
+#then
+#	cd sample
+#	./makelatest $1 $2 || exit
+#	cd ..
+#fi

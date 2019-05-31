@@ -18,6 +18,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 #include "kernel.h"
+//#include <circle/cputhrottle.h>
+
+//CCPUThrottle systemClock(CPUSpeedMaximum);
 
 static const char FromKernel[] = "kernel";
 
@@ -36,6 +39,8 @@ CKernel::~CKernel (void)
 
 boolean CKernel::Initialize (void)
 {
+    //systemClock.SetSpeed(CPUSpeedLow);
+    
 	boolean bOK = TRUE;
 
 	if (bOK)

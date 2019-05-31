@@ -1,0 +1,7 @@
+fast=true
+disable_splash=1
+arm_freq_min=1200
+arm_freq=1300
+core_freq=400
+sdram_freq=500
+#over_voltage=8

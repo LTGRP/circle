@@ -18,15 +18,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-ifeq ($(strip $(CIRCLEHOME)),)
-CIRCLEHOME = ..
-endif
 
--include $(CIRCLEHOME)/Config.mk
+-include $(CIRCLE_PATH)/Config.mk
 
-RASPPI	?= 1
+RASPPI	?= 3
 PREFIX	?= arm-none-eabi-
-
 # see: doc/stdlib-support.txt
 STDLIB_SUPPORT ?= 1
 
@@ -70,7 +66,7 @@ endif
 
 OPTIMIZE ?= -O2
 
-INCLUDE	+= -I $(CIRCLEHOME)/include -I $(CIRCLEHOME)/addon -I $(CIRCLEHOME)/app/lib
+INCLUDE	+= -I $(CIRCLE_PATH)/include -I $(CIRCLE_PATH)/addon -I $(CIRCLE_PATH)/app/lib -I $(CIRCLE_PATH)/app/lib/core
 
 AFLAGS	+= $(ARCH) -DRASPPI=$(RASPPI) -DSTDLIB_SUPPORT=$(STDLIB_SUPPORT) $(INCLUDE)
 CFLAGS	+= $(ARCH) -Wall -fsigned-char -ffreestanding \
@@ -87,11 +83,27 @@ CPPFLAGS+= $(CFLAGS) -std=c++14
 %.o: %.cpp
 	$(CPP) $(CPPFLAGS) -c -o $@ $<
 
-$(TARGET).img: $(OBJS) $(LIBS) $(CIRCLEHOME)/lib/startup.o $(CIRCLEHOME)/circle.ld
-	$(LD) -o $(TARGET).elf -Map $(TARGET).map -T $(CIRCLEHOME)/circle.ld $(CIRCLEHOME)/lib/startup.o $(OBJS) $(EXTRALIBS) $(LIBS) $(EXTRALIBS)
+SERIALPORT ?= /dev/ttyUSB0
+DEFAULTBAUD ?= 115200
+FLASHBAUD ?= 1008065
+	
+$(TARGET).img: $(OBJS) $(LIBS) $(CIRCLE_PATH)/lib/startup.o $(CIRCLE_PATH)/circle.ld
+	$(LD) -o $(TARGET).elf -Map $(TARGET).map -T $(CIRCLE_PATH)/circle.ld $(CIRCLE_PATH)/lib/startup.o $(OBJS) $(EXTRALIBS) $(LIBS) $(EXTRALIBS)
 	$(PREFIX)objdump -d $(TARGET).elf | $(PREFIX)c++filt > $(TARGET).lst
 	$(PREFIX)objcopy $(TARGET).elf -O binary $(TARGET).img
+	$(PREFIX)objcopy $(TARGET).elf -O ihex $(TARGET).hex
 	wc -c $(TARGET).img
+	rm -f *.o *.elf *.lst *.cir *.map *~ $(EXTRACLEAN)
 
 clean:
-	rm -f *.o *.a *.elf *.lst *.img *.cir *.map *~ $(EXTRACLEAN)
+	rm -f *.o *.a *.elf *.hex *.lst *.img *.cir *.map *~ $(EXTRACLEAN)
+
+flash:
+
+	make
+	python $(CIRCLE_PATH)/tools/flasher.py $(TARGET).hex $(SERIALPORT) $(FLASHBAUD)
+	
+monitor:
+
+	putty -serial $(SERIALPORT) -sercfg $(DEFAULTBAUD)
+	

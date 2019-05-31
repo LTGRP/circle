@@ -17,10 +17,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
+#include <stdlib.h>
 #include "kernel.h"
 #include <circle/string.h>
 #include <circle/debug.h>
 #include <assert.h>
+
 
 static const char FromKernel[] = "kernel";
 
@@ -67,21 +69,20 @@ boolean CKernel::Initialize (void)
 TShutdownMode CKernel::Run (void)
 {
 	m_Logger.Write (FromKernel, LogNotice, "Compile time: " __DATE__ " " __TIME__);
-
 	// show the character set on screen
 	for (char chChar = ' '; chChar <= '~'; chChar++)
 	{
 		if (chChar % 8 == 0)
 		{
-			m_Screen.Write ("\n", 1);
+			//m_Screen.Write ("\n", 1);
 		}
 
 		CString Message;
 		Message.Format ("%02X: \'%c\' ", (unsigned) chChar, chChar);
 		
-		m_Screen.Write ((const char *) Message, Message.GetLength ());
+		//m_Screen.Write ((const char *) Message, Message.GetLength ());
 	}
-	m_Screen.Write ("\n", 1);
+	//m_Screen.Write ("\n", 1);
 
 #ifndef NDEBUG
 	// some debugging features

@@ -1,0 +1,6 @@
+eclipse.preferences.version=1
+environment/project/cdt.managedbuild.toolchain.gnu.cross.base.1373043886/CIRCLE_PATH/delimiter=\:
+environment/project/cdt.managedbuild.toolchain.gnu.cross.base.1373043886/CIRCLE_PATH/operation=append
+environment/project/cdt.managedbuild.toolchain.gnu.cross.base.1373043886/CIRCLE_PATH/value=/home/matheus/baremetal/circle/
+environment/project/cdt.managedbuild.toolchain.gnu.cross.base.1373043886/append=true
+environment/project/cdt.managedbuild.toolchain.gnu.cross.base.1373043886/appendContributed=true

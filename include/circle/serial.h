@@ -27,7 +27,7 @@
 #include <circle/sysconfig.h>
 #include <circle/types.h>
 
-#define SERIAL_BUF_SIZE		2048			// must be a power of 2
+#define SERIAL_BUF_SIZE		4096			// must be a power of 2
 #define SERIAL_BUF_MASK		(SERIAL_BUF_SIZE-1)
 
 // serial options
@@ -75,7 +75,7 @@ private:
 	void InterruptHandler (void);
 	static void InterruptStub (void *pParam);
 
-private:
+protected:
 	CGPIOPin m_GPIO32;
 	CGPIOPin m_GPIO33;
 	CGPIOPin m_TxDPin;

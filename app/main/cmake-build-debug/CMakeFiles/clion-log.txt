@@ -1,0 +1,72 @@
+/home/matheus/CLion/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=/usr/bin/arm-none-eabi-gcc -DCMAKE_CXX_COMPILER=/usr/bin/arm-none-eabi-g++ -G "CodeBlocks - Unix Makefiles" /home/matheus/baremetal/circle/app/main
+-- The C compiler identification is GNU 7.2.1
+-- The CXX compiler identification is GNU 7.2.1
+-- Check for working C compiler: /usr/bin/arm-none-eabi-gcc
+-- Check for working C compiler: /usr/bin/arm-none-eabi-gcc -- broken
+CMake Error at /home/matheus/CLion/bin/cmake/share/cmake-3.9/Modules/CMakeTestCCompiler.cmake:51 (message):
+  The C compiler "/usr/bin/arm-none-eabi-gcc" is not able to compile a simple
+  test program.
+
+  It fails with the following output:
+
+   Change Dir: /home/matheus/baremetal/circle/app/main/cmake-build-debug/CMakeFiles/CMakeTmp
+
+  
+
+  Run Build Command:"/usr/bin/make" "cmTC_0f763/fast"
+
+  /usr/bin/make -f CMakeFiles/cmTC_0f763.dir/build.make
+  CMakeFiles/cmTC_0f763.dir/build
+
+  make[1]: Entering directory
+  '/home/matheus/baremetal/circle/app/main/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+
+  Building C object CMakeFiles/cmTC_0f763.dir/testCCompiler.c.o
+
+  /usr/bin/arm-none-eabi-gcc -o CMakeFiles/cmTC_0f763.dir/testCCompiler.c.o
+  -c
+  /home/matheus/baremetal/circle/app/main/cmake-build-debug/CMakeFiles/CMakeTmp/testCCompiler.c
+
+
+  Linking C executable cmTC_0f763
+
+  /home/matheus/CLion/bin/cmake/bin/cmake -E cmake_link_script
+  CMakeFiles/cmTC_0f763.dir/link.txt --verbose=1
+
+  /usr/bin/arm-none-eabi-gcc CMakeFiles/cmTC_0f763.dir/testCCompiler.c.o -o
+  cmTC_0f763
+
+  
+  /usr/bin/../lib/gcc/arm-none-eabi/7.2.1/../../../../arm-none-eabi/lib/libc.a(lib_a-exit.o):
+  In function `exit':
+
+  exit.c:(.text.exit+0x2c): undefined reference to `_exit'
+
+  collect2: error: ld returned 1 exit status
+
+  CMakeFiles/cmTC_0f763.dir/build.make:97: recipe for target 'cmTC_0f763'
+  failed
+
+  make[1]: *** [cmTC_0f763] Error 1
+
+  make[1]: Leaving directory
+  '/home/matheus/baremetal/circle/app/main/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+
+  Makefile:126: recipe for target 'cmTC_0f763/fast' failed
+
+  make: *** [cmTC_0f763/fast] Error 2
+
+  
+
+  
+
+  CMake will not be able to correctly generate this project.
+Call Stack (most recent call first):
+  CMakeLists.txt:2 (project)
+
+
+-- Configuring incomplete, errors occurred!
+See also "/home/matheus/baremetal/circle/app/main/cmake-build-debug/CMakeFiles/CMakeOutput.log".
+See also "/home/matheus/baremetal/circle/app/main/cmake-build-debug/CMakeFiles/CMakeError.log".

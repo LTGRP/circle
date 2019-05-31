@@ -40,15 +40,15 @@ TShutdownMode CKernel::Run (void)
 	CGPIOPin AudioRight (GPIOPinAudioRight, GPIOModeOutput);
 	
 	// flash the Act LED 10 times and click on audio (3.5mm headphone jack)
-	for (unsigned i = 1; i <= 10; i++)
+	for (unsigned i = 1; i <= 100; i++)
 	{
 		m_ActLED.On ();
 		AudioLeft.Invert ();
 		AudioRight.Invert ();
-		CTimer::SimpleMsDelay (200);
+		CTimer::SimpleMsDelay (100);
 
 		m_ActLED.Off ();
-		CTimer::SimpleMsDelay (500);
+		CTimer::SimpleMsDelay (100);
 	}
 
 	return ShutdownReboot;

@@ -2,11 +2,9 @@
 # Makefile
 #
 
-CIRCLEHOME = ../..
-
 OBJS	= main.o kernel.o screentask.o primetask.o ledtask.o
 
-LIBS	= $(CIRCLEHOME)/lib/sched/libsched.a \
-	  $(CIRCLEHOME)/lib/libcircle.a
+LIBS	= $(CIRCLE_PATH)/lib/sched/libsched.a \
+	  $(CIRCLE_PATH)/lib/libcircle.a
 
-include ../Rules.mk
+include $(CIRCLE_PATH)/Rules.mk

@@ -5,7 +5,7 @@
 /* -- CONFIG SECTION                                                             -- */
 /* -------------------------------------------------------------------------------- */
 
-//#define USE_MULTITASKING    
+#define USE_MULTITASKING    
 
 /* Enable color mode */
 //#define USE_COLOR_RGB888   // RGB = 0xFF,0xFF,0xFF

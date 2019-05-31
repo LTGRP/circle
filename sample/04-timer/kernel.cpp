@@ -78,7 +78,7 @@ TShutdownMode CKernel::Run (void)
 	m_Logger.Write (FromKernel, LogNotice, "An exception will occur after 15 seconds from now");
 
 	// start timer to elapse after 15 seconds
-	m_Timer.StartKernelTimer (15 * HZ, TimerHandler);
+	m_Timer.StartKernelTimer (1, TimerHandler);
 
 	// generate a log message every second
 	unsigned nTime = m_Timer.GetTime ();
